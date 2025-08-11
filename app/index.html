@@ -48,11 +48,27 @@
           <input id="differentEnv" type="checkbox" /> Different environment
         </label>
       </div>
-      <div class="row" style="margin-top:8px;">
-        <button id="btnSaveSchemas" class="secondary">Save schemas</button>
-        <button id="btnClearSchemas" class="secondary">Clear saved</button>
-        <span class="muted">Saves locally in this browser</span>
-      </div>
+
+      <fieldset style="margin-top:12px;">
+        <legend>Presets</legend>
+        <div class="row" style="gap:8px; align-items:flex-end;">
+          <label style="flex:1 1 220px;">
+            Preset name
+            <input id="presetName" type="text" placeholder="e.g. DEV→QA Scope3" />
+          </label>
+          <button id="btnSavePreset" class="secondary">Save preset</button>
+          <button id="btnDeletePreset" class="secondary">Delete preset</button>
+        </div>
+        <div class="row" style="margin-top:8px; gap:8px; align-items:center;">
+          <label style="flex:1 1 320px;">
+            Saved presets
+            <select id="presetSelect" style="width:100%; max-width:520px; padding:8px; border-radius:6px; border:1px solid #aaa;"></select>
+          </label>
+          <button id="btnApplyPreset" class="secondary">Apply</button>
+          <button id="btnClearSchemas" class="secondary">Clear saved</button>
+          <span class="muted">Stored locally in this browser</span>
+        </div>
+      </fieldset>
     </fieldset>
 
     <fieldset>

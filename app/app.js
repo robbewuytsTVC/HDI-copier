@@ -5,6 +5,7 @@ function log(msg) { const el = $('log'); el.textContent += `\n${new Date().toISO
 
 // Local storage helpers
 const STORAGE_KEY = 'hdi-data-copier-schemas-v1';
+const PRESETS_KEY = 'hdi-data-copier-presets-v1';
 function loadSavedSchemas() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
 }
@@ -34,6 +35,34 @@ function populateDatalists() {
   });
   (data.targets || []).forEach(v => {
     const o = document.createElement('option'); o.value = v; tgtList.appendChild(o);
+  });
+}
+
+// Presets helpers
+function loadPresets() {
+  try { return JSON.parse(localStorage.getItem(PRESETS_KEY) || '{}'); } catch { return {}; }
+}
+function savePreset(name, sourceSchema, targetSchema, differentEnv) {
+  if (!name) throw new Error('Preset name required');
+  const presets = loadPresets();
+  presets[name] = { sourceSchema, targetSchema, differentEnv: !!differentEnv };
+  localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+  populatePresetSelect();
+}
+function deletePreset(name) {
+  const presets = loadPresets();
+  delete presets[name];
+  localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+  populatePresetSelect();
+}
+function populatePresetSelect() {
+  const sel = $('presetSelect');
+  if (!sel) return;
+  const presets = loadPresets();
+  const names = Object.keys(presets).sort((a,b) => a.localeCompare(b));
+  sel.innerHTML = '';
+  names.forEach(n => {
+    const opt = document.createElement('option'); opt.value = n; opt.textContent = n; sel.appendChild(opt);
   });
 }
 
@@ -126,6 +155,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const save = () => saveSchemas($('sourceSchema').value.trim(), $('targetSchema').value.trim());
   $('btnSaveSchemas')?.addEventListener('click', save);
   $('btnClearSchemas')?.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); populateDatalists(); });
+  // Presets
+  $('btnSavePreset')?.addEventListener('click', () => {
+    const name = $('presetName').value.trim();
+    try {
+      savePreset(name, $('sourceSchema').value.trim(), $('targetSchema').value.trim(), $('differentEnv').checked);
+      log(`Saved preset '${name}'`);
+    } catch (e) { alert(e.message); }
+  });
+  $('btnDeletePreset')?.addEventListener('click', () => {
+    const sel = $('presetSelect');
+    const name = sel?.value;
+    if (!name) { alert('Select a preset to delete'); return; }
+    deletePreset(name);
+    log(`Deleted preset '${name}'`);
+  });
+  $('btnApplyPreset')?.addEventListener('click', () => {
+    const sel = $('presetSelect');
+    const name = sel?.value;
+    if (!name) { alert('Select a preset to apply'); return; }
+    const p = loadPresets()[name];
+    if (!p) { alert('Preset not found'); return; }
+    $('sourceSchema').value = p.sourceSchema || '';
+    $('targetSchema').value = p.targetSchema || '';
+    $('differentEnv').checked = !!p.differentEnv;
+    log(`Applied preset '${name}'`);
+  });
+  populatePresetSelect();
   populateDatalists();
   // Prefill with last used
   const last = loadSavedSchemas();
