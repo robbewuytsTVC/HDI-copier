@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HDI Data Copier</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+      h1 { font-size: 1.4rem; margin: 0 0 16px; }
+      fieldset { border: 1px solid #ccc; padding: 16px; margin-bottom: 16px; border-radius: 8px; }
+      label { display: block; margin: 8px 0; }
+      input[type="text"] { width: 100%; max-width: 520px; padding: 8px; border-radius: 6px; border: 1px solid #aaa; }
+      button { padding: 10px 14px; border-radius: 6px; border: 1px solid #888; background: #1d4ed8; color: #fff; cursor: pointer; }
+      button.secondary { background: #6b7280; }
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
+      .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .cols { display: block; margin-top: 12px; max-height: 360px; overflow: auto; border: 1px solid #ccc; padding: 12px; border-radius: 8px; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #999; }
+      .success { color: #166534; border-color: #16a34a; }
+      .error { color: #991b1b; border-color: #ef4444; }
+      .muted { color: #6b7280; }
+      .toolbar { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+      .footer { margin-top: 16px; }
+      .hidden { display: none; }
+      .log { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; border: 1px dashed #aaa; padding: 8px; border-radius: 6px; max-height: 200px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>HDI Data Copier</h1>
+
+    <fieldset>
+      <legend>Schemas</legend>
+      <label>
+        Source schema
+        <input id="sourceSchema" type="text" placeholder="SOURCE_SCHEMA" />
+      </label>
+      <label>
+        Target schema
+        <input id="targetSchema" type="text" placeholder="TARGET_SCHEMA" />
+      </label>
+      <div class="row">
+        <button id="btnLoad">Load tables</button>
+        <span id="status" class="badge muted">Idle</span>
+        <label style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+          <input id="differentEnv" type="checkbox" /> Different environment
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Tables</legend>
+      <div class="toolbar">
+        <button id="btnSelectAll" class="secondary">Select all</button>
+        <button id="btnClear" class="secondary">Clear</button>
+        <span id="count" class="muted"></span>
+      </div>
+      <div id="tables" class="cols"></div>
+    </fieldset>
+
+    <div class="footer row">
+      <button id="btnCopy" disabled>Copy selected tables</button>
+      <span id="copyStatus" class="badge muted">Ready</span>
+    </div>
+
+    <details style="margin-top:16px;">
+      <summary>Logs</summary>
+      <div id="log" class="log"></div>
+    </details>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
+
