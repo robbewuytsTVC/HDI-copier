@@ -87,12 +87,23 @@ async function loadTables() {
     const container = $('tables');
     for (const t of tables) {
       const id = `t_${t}`;
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '8px';
       const wrapper = document.createElement('label');
       const cb = document.createElement('input');
       cb.type = 'checkbox'; cb.value = t; cb.id = id;
       const text = document.createTextNode(` ${t}`);
       wrapper.appendChild(cb); wrapper.appendChild(text);
-      container.appendChild(wrapper);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'Preview';
+      btn.className = 'secondary';
+      btn.addEventListener('click', () => previewTable(t));
+      row.appendChild(wrapper);
+      row.appendChild(btn);
+      container.appendChild(row);
     }
     $('btnCopy').disabled = tables.length === 0;
     setText('count', `${tables.length} tables`);
@@ -114,6 +125,32 @@ function getSelectedTables() {
 function selectAll(select) {
   const boxes = Array.from(document.querySelectorAll('#tables input[type="checkbox"]'));
   for (const b of boxes) b.checked = select;
+}
+
+async function previewTable(table) {
+  const sourceSchema = $('sourceSchema').value.trim();
+  if (!sourceSchema) { alert('Provide source schema'); return; }
+  const isDiff = document.getElementById('differentEnv').checked;
+  const previewEndpoint = isDiff ? 'getTablePreviewDifferentEnv' : 'getTablePreview';
+  const countEndpoint = isDiff ? 'getTableCountDifferentEnv' : 'getTableCount';
+  const url = `/odata/v4/copy/${previewEndpoint}(sourceSchema='${encodeURIComponent(sourceSchema)}',table='${encodeURIComponent(table)}',limit=50)`;
+  const countUrl = `/odata/v4/copy/${countEndpoint}(sourceSchema='${encodeURIComponent(sourceSchema)}',table='${encodeURIComponent(table)}')`;
+  setText('previewMeta', `${sourceSchema}.${table}`);
+  try {
+    const [resPrev, resCnt] = await Promise.all([fetch(url), fetch(countUrl)]);
+    if (!resPrev.ok) throw new Error(`${resPrev.status} ${resPrev.statusText}`);
+    if (!resCnt.ok) throw new Error(`${resCnt.status} ${resCnt.statusText}`);
+    const jsonPrev = await resPrev.json();
+    const jsonCnt = await resCnt.json();
+    const rows = jsonPrev.value ?? jsonPrev;
+    const pretty = rows.map(r => JSON.parse(r.json));
+    const total = jsonCnt.value ?? jsonCnt;
+    setText('previewMeta', `${sourceSchema}.${table} — total rows: ${total}`);
+    $('preview').textContent = JSON.stringify(pretty, null, 2);
+  } catch (e) {
+    $('preview').textContent = `Error: ${e.message}`;
+  }
+  $('previewDialog').showModal();
 }
 
 async function copySelected() {

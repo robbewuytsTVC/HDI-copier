@@ -24,6 +24,32 @@ service CopyService {
         targetSchema : String,
         tables       : many String
     ) returns many fillTablesOutput;
+
+    // Preview table content (first N rows) from source schema
+    function getTablePreview(
+        sourceSchema : String,
+        table        : String,
+        limit        : Integer
+    ) returns many tablePreviewRow;
+
+    // Preview table content when source is in a different environment
+    function getTablePreviewDifferentEnv(
+        sourceSchema : String,
+        table        : String,
+        limit        : Integer
+    ) returns many tablePreviewRow;
+
+    // Total number of rows in a table
+    function getTableCount(
+        sourceSchema : String,
+        table        : String
+    ) returns Int64;
+
+    // Total number of rows in a table (different environment)
+    function getTableCountDifferentEnv(
+        sourceSchema : String,
+        table        : String
+    ) returns Int64;
 }
 
 // Output type for compareSchemas
@@ -37,4 +63,9 @@ type compareTablesOutput {
 type fillTablesOutput {
     name : String;
     rows : Int64;
+}
+
+// Generic preview row where 'json' contains a stringified row object
+type tablePreviewRow {
+    json : String;
 }

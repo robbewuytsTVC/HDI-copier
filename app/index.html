@@ -91,6 +91,17 @@
       <div id="log" class="log"></div>
     </details>
 
+    <dialog id="previewDialog" style="max-width: 90vw; width: 800px;">
+      <form method="dialog">
+        <h3>Table preview</h3>
+        <p id="previewMeta" class="muted"></p>
+        <pre id="preview" style="max-height: 60vh; overflow: auto; border: 1px solid #ccc; padding: 12px; border-radius: 6px;"></pre>
+        <div class="row" style="margin-top: 12px;">
+          <button value="close" class="secondary">Close</button>
+        </div>
+      </form>
+    </dialog>
+
     <script src="./app.js"></script>
   </body>
   </html>
