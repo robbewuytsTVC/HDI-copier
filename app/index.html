@@ -33,18 +33,25 @@
       <legend>Schemas</legend>
       <label>
         Source schema
-        <input id="sourceSchema" type="text" placeholder="SOURCE_SCHEMA" />
+        <input id="sourceSchema" type="text" placeholder="SOURCE_SCHEMA" list="sourceSchemaList" />
       </label>
       <label>
         Target schema
-        <input id="targetSchema" type="text" placeholder="TARGET_SCHEMA" />
+        <input id="targetSchema" type="text" placeholder="TARGET_SCHEMA" list="targetSchemaList" />
       </label>
+      <datalist id="sourceSchemaList"></datalist>
+      <datalist id="targetSchemaList"></datalist>
       <div class="row">
         <button id="btnLoad">Load tables</button>
         <span id="status" class="badge muted">Idle</span>
         <label style="margin-left:auto; display:flex; align-items:center; gap:6px;">
           <input id="differentEnv" type="checkbox" /> Different environment
         </label>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button id="btnSaveSchemas" class="secondary">Save schemas</button>
+        <button id="btnClearSchemas" class="secondary">Clear saved</button>
+        <span class="muted">Saves locally in this browser</span>
       </div>
     </fieldset>
 

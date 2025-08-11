@@ -3,6 +3,40 @@ const $ = (id) => document.getElementById(id);
 function setText(id, text) { $(id).textContent = text; }
 function log(msg) { const el = $('log'); el.textContent += `\n${new Date().toISOString()} — ${msg}`; el.scrollTop = el.scrollHeight; }
 
+// Local storage helpers
+const STORAGE_KEY = 'hdi-data-copier-schemas-v1';
+function loadSavedSchemas() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveSchemas(sourceSchema, targetSchema) {
+  const data = loadSavedSchemas();
+  const add = (arr = [], val) => {
+    if (!val) return arr || [];
+    const next = [val, ...(arr || []).filter(v => v !== val)];
+    return next.slice(0, 10);
+  };
+  const next = {
+    sources: add(data.sources, sourceSchema),
+    targets: add(data.targets, targetSchema),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  populateDatalists();
+}
+function populateDatalists() {
+  const data = loadSavedSchemas();
+  const srcList = $('sourceSchemaList');
+  const tgtList = $('targetSchemaList');
+  if (!srcList || !tgtList) return;
+  srcList.innerHTML = '';
+  tgtList.innerHTML = '';
+  (data.sources || []).forEach(v => {
+    const o = document.createElement('option'); o.value = v; srcList.appendChild(o);
+  });
+  (data.targets || []).forEach(v => {
+    const o = document.createElement('option'); o.value = v; tgtList.appendChild(o);
+  });
+}
+
 async function loadTables() {
   const sourceSchema = $('sourceSchema').value.trim();
   const targetSchema = $('targetSchema').value.trim();
@@ -88,5 +122,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnCopy').addEventListener('click', copySelected);
   $('btnSelectAll').addEventListener('click', () => selectAll(true));
   $('btnClear').addEventListener('click', () => selectAll(false));
+  // Save schemas
+  const save = () => saveSchemas($('sourceSchema').value.trim(), $('targetSchema').value.trim());
+  $('btnSaveSchemas')?.addEventListener('click', save);
+  $('btnClearSchemas')?.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); populateDatalists(); });
+  populateDatalists();
+  // Prefill with last used
+  const last = loadSavedSchemas();
+  if (last.sources?.[0]) $('sourceSchema').value = last.sources[0];
+  if (last.targets?.[0]) $('targetSchema').value = last.targets[0];
 });
 
